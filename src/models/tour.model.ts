@@ -1,7 +1,6 @@
 import { Schema, Document, model, Query, Aggregate } from 'mongoose';
 
 const slugify = require('slugify');
-// const validator = require('validator');
 
 export interface ITour extends Document {
   name: string;

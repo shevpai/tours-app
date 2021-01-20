@@ -1,9 +1,11 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { APIFeatures } from '../features/api.features';
+import { AppError } from '../features/error.features';
 import { Tour } from '../models/tour.model';
+import { catchAsync } from '../utils/catchAsync';
 
 class TourController {
-  async getAllTours(req: Request, res: Response) {
+  getAllTours = catchAsync(async (req: Request, res: Response) => {
     const features = new APIFeatures(Tour.find(), req.query)
       .filter()
       .sort()
@@ -19,39 +21,58 @@ class TourController {
         tours,
       },
     });
-  }
+  });
 
-  async getTour(req: Request, res: Response) {
-    const tour = await Tour.findById(req.params.id);
+  getTour = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const tour = await Tour.findById(req.params.id);
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  }
+      if (!tour) {
+        return next(new AppError('No tour found with that ID', 404));
+      }
 
-  async updateTour(req: Request, res: Response) {
-    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+      res.status(200).json({
+        status: 'success',
+        data: {
+          tour,
+        },
+      });
+    }
+  );
 
-    res.status(200).json({
-      status: 'success',
-      data: {
-        tour,
-      },
-    });
-  }
+  updateTour = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
 
-  async deleteTour(req: Request, res: Response) {
-    await Tour.findByIdAndDelete(req.params.id);
-    res.status(204).send();
-  }
+      if (!tour) {
+        return next(new AppError('No tour found with that ID', 404));
+      }
 
-  async addTour(req: Request, res: Response) {
+      res.status(200).json({
+        status: 'success',
+        data: {
+          tour,
+        },
+      });
+    }
+  );
+
+  deleteTour = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const tour = await Tour.findByIdAndDelete(req.params.id);
+
+      if (!tour) {
+        return next(new AppError('No tour found with that ID', 404));
+      }
+
+      res.status(204).send();
+    }
+  );
+
+  addTour = catchAsync(async (req: Request, res: Response) => {
     const newTour = await Tour.create(req.body);
 
     res.status(201).json({
@@ -60,9 +81,9 @@ class TourController {
         tour: newTour,
       },
     });
-  }
+  });
 
-  async getTourStats(req: Request, res: Response) {
+  getTourStats = catchAsync(async (req: Request, res: Response) => {
     const stats = await Tour.aggregate([
       {
         $match: { ratingsAverage: { $gte: 4.5 } },
@@ -89,9 +110,9 @@ class TourController {
         stats,
       },
     });
-  }
+  });
 
-  async getMonthlyPlan(req: Request, res: Response) {
+  getMonthlyPlan = catchAsync(async (req: Request, res: Response) => {
     const year = +req.params.year;
 
     const plan = await Tour.aggregate([
@@ -135,7 +156,7 @@ class TourController {
         plan,
       },
     });
-  }
+  });
 }
 
 export default new TourController();

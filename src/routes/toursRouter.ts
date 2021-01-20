@@ -1,24 +1,30 @@
-import TourController from '../controllers/tourController';
+import tourController from '../controllers/tourController';
 import { aliasTopTours } from '../middleware/aliasTopTours';
-import { checkTourID } from '../middleware/checkId';
+import { protectRout } from '../middleware/protectRout';
+import { restrictTo } from '../middleware/restrictTo';
 
 const { Router } = require('express');
 
 export const toursRouter = Router();
 
 // Param middleware
-toursRouter.param('id', checkTourID);
+// toursRouter.param('id', checkTourID);
 
 // Top 5 cheap alias
-toursRouter.get('/top-5-best-tours', aliasTopTours, TourController.getAllTours);
+toursRouter.get('/top-5-best-tours', aliasTopTours, tourController.getAllTours);
 
 // Tours stats
-toursRouter.get('/tours-stats', TourController.getTourStats);
-toursRouter.get('/monthly-plan/:year', TourController.getMonthlyPlan);
+toursRouter.get('/tours-stats', tourController.getTourStats);
+toursRouter.get('/monthly-plan/:year', tourController.getMonthlyPlan);
 
 // Routs
-toursRouter.get('/', TourController.getAllTours);
-toursRouter.get('/:id', TourController.getTour);
-toursRouter.patch('/:id', TourController.updateTour);
-toursRouter.delete('/:id', TourController.deleteTour);
-toursRouter.post('/', TourController.addTour);
+toursRouter.get('/', protectRout, tourController.getAllTours);
+toursRouter.get('/:id', tourController.getTour);
+toursRouter.patch('/:id', tourController.updateTour);
+toursRouter.delete(
+  '/:id',
+  protectRout,
+  restrictTo('admin', 'lead-guide'),
+  tourController.deleteTour
+);
+toursRouter.post('/', tourController.addTour);
