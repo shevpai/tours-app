@@ -7,6 +7,14 @@ import { sendEmail } from '../utils/email';
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 
+const cookieOptions = {
+  expires: new Date(
+    Date.now() + +process.env.JWT_COOKIE_EXPIRES_IN! * 24 * 60 * 60 * 1e3
+  ),
+  secure: process.env.NODE_ENV === 'production' ? true : false,
+  httpOnly: true,
+};
+
 const createToken = (id: string) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -14,6 +22,8 @@ const createToken = (id: string) =>
 
 const createAndSendToken = (user: IUser, statusCode: number, res: Response) => {
   const token = createToken(user._id);
+
+  res.cookie('jwt', token, cookieOptions);
 
   const userData = {
     name: user.name,

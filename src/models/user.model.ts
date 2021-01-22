@@ -1,4 +1,4 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model, Query } from 'mongoose';
 
 const crypto = require('crypto');
 const validator = require('validator');
@@ -14,6 +14,7 @@ export interface IUser extends Document {
   passwordChangedAt: Date;
   passwordResetToken: string;
   passwordResetExpires: number;
+  active: boolean;
 }
 
 const userSchema: Schema = new Schema({
@@ -54,6 +55,11 @@ const userSchema: Schema = new Schema({
   passwordChangedAt: Date,
   passwordResetToken: String,
   passwordResetExpires: Date,
+  active: {
+    type: Boolean,
+    default: true,
+    select: false,
+  },
 });
 
 userSchema.pre<IUser>('save', async function (next) {
@@ -71,6 +77,11 @@ userSchema.pre<IUser>('save', function (next) {
   // -1s to be sure that passwordChangedAt timestamp less then token.iat
   this.passwordChangedAt = new Date(Date.now() - 1000);
   next();
+});
+
+// query middleware
+userSchema.pre<Query<IUser, IUser, any>>(/^find/, function () {
+  this.find({ active: { $ne: false } });
 });
 
 userSchema.methods.correctPass = async function (

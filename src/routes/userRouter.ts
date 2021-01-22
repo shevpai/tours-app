@@ -19,5 +19,6 @@ userRouter.patch(
 );
 
 userRouter.patch('/update-me', protectRout, userController.selfUpdate);
+userRouter.delete('/delete-me', protectRout, userController.inactivateAcc);
 
 userRouter.get('/', userController.getAllUsers);

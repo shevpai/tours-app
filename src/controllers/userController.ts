@@ -58,6 +58,17 @@ class UserController {
       });
     }
   );
+
+  inactivateAcc = catchAsync(
+    async (req: extndRequest, res: Response, next: NextFunction) => {
+      await User.findByIdAndUpdate(req.user!.id, { active: false });
+
+      res.status(204).json({
+        status: 'success',
+        data: null,
+      });
+    }
+  );
 }
 
 export default new UserController();

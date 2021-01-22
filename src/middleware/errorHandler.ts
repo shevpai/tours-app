@@ -56,7 +56,11 @@ const handleJwtValidationError = () =>
 const handleJwtExpiredError = () =>
   new AppError('Your token has expired! Please log in again', 401);
 
-export function errorCreator(req: Request, res: Response, next: NextFunction) {
+export function urlErrorHandler(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   // work for es5
   // const err: ResponseError = new Error(`Can't find route for ${req.originalUrl}`);
   // err.status = 'fail'
