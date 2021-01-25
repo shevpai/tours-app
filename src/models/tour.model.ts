@@ -1,6 +1,14 @@
 import { Schema, Document, model, Query, Aggregate } from 'mongoose';
+import { IUser } from './user.model';
 
 const slugify = require('slugify');
+
+interface location extends Document {
+  coordinates: number[];
+  descriptions: string;
+  address: string;
+  day: number;
+}
 
 export interface ITour extends Document {
   name: string;
@@ -18,6 +26,9 @@ export interface ITour extends Document {
   images: string[];
   createdAt: Date;
   startDates: Date[];
+  guides: IUser[];
+  startLocation: location;
+  locations: location[];
 }
 
 const tourSchema: Schema = new Schema(
@@ -100,6 +111,31 @@ const tourSchema: Schema = new Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // GeoJSON
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          dafault: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    guides: [{ type: Schema.Types.ObjectId, ref: 'User' }],
   },
   {
     toJSON: { virtuals: true },
@@ -125,9 +161,26 @@ tourSchema.pre<ITour>('save', function (next) {
 //   next();
 // });
 
+// Embedding guides(users) into Tours (--JUST FOR EXAMPLE)
+// tourSchema.pre<ITour>('save', async function (next) {
+//   const guidesPromises = this.guides.map(async (id) => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
+
 // QUERY MIDDLEWARE
+
+// remove secret tours
 tourSchema.pre<Query<ITour, ITour, any>>(/^find/, function () {
   this.find({ secretTour: { $ne: true } });
+});
+
+// populate guides
+tourSchema.pre<Query<ITour, ITour, any>>(/^find/, function () {
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
 });
 
 // AGGREGATION MIDDLEWARE
