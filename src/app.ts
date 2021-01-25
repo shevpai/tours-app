@@ -14,6 +14,7 @@ const hpp = require('hpp');
 
 import { Application } from 'express';
 import { urlErrorHandler, globalErrorHandler } from './middleware/errorHandler';
+import { reviewRouter } from './routes/reviewRouter';
 import { toursRouter } from './routes/toursRouter';
 import { userRouter } from './routes/userRouter';
 
@@ -76,6 +77,7 @@ app.use('/public', express.static(path.join(__dirname, '..', 'public')));
 // Main routes
 app.use('/api/v1/users', userRouter);
 app.use('/api/v1/tours', toursRouter);
+app.use('/api/v1/reviews', reviewRouter);
 
 // Handler for invalid url
 app.all('*', urlErrorHandler);

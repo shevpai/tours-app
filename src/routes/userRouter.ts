@@ -1,8 +1,7 @@
+import { Router } from 'express';
+import { protectRout } from '../middleware/protectRout';
 import authController from '../controllers/authController';
 import userController from '../controllers/userController';
-import { protectRout } from '../middleware/protectRout';
-
-const { Router } = require('express');
 
 export const userRouter = Router();
 

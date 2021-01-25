@@ -1,9 +1,8 @@
-import tourController from '../controllers/tourController';
+import { Router } from 'express';
 import { aliasTopTours } from '../middleware/aliasTopTours';
 import { protectRout } from '../middleware/protectRout';
 import { restrictTo } from '../middleware/restrictTo';
-
-const { Router } = require('express');
+import tourController from '../controllers/tourController';
 
 export const toursRouter = Router();
 
