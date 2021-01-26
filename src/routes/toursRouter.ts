@@ -2,12 +2,20 @@ import { Router } from 'express';
 import { aliasTopTours } from '../middleware/aliasTopTours';
 import { protectRout } from '../middleware/protectRout';
 import { restrictTo } from '../middleware/restrictTo';
+import { reviewRouter } from './reviewRouter';
 import tourController from '../controllers/tourController';
 
 export const toursRouter = Router();
 
 // Param middleware
 // toursRouter.param('id', checkTourID);
+
+// Nested routes
+// toursRouter
+//   .route('/:tourId/reviews')
+//   .post(protectRout, restrictTo('user'), reviewController.createReview);
+
+toursRouter.use('/:tourId/reviews', reviewRouter);
 
 // Top 5 cheap alias
 toursRouter.get('/top-5-best-tours', aliasTopTours, tourController.getAllTours);

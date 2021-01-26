@@ -1,4 +1,4 @@
-import { Schema, Document, model } from 'mongoose';
+import { Schema, Document, model, Query } from 'mongoose';
 
 interface IReview extends Document {
   review: string;
@@ -37,6 +37,14 @@ const reviewSchema = new Schema(
     toObject: { virtuals: true },
   }
 );
+
+// populate user & tour data
+reviewSchema.pre<Query<IReview, IReview, any>>(/^find/, function () {
+  this.populate({
+    path: 'user',
+    select: 'name photo',
+  });
+});
 
 export const Review = model<IReview>('Review', reviewSchema);
 

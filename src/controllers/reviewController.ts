@@ -1,10 +1,14 @@
 import { Request, Response } from 'express';
 import { Review } from '../models/review.model';
-import { catchAsync } from '../utils/catchAsync';
+import { catchAsync, extndRequest } from '../utils/catchAsync';
 
 class ReviewController {
   getAllReviews = catchAsync(async (req: Request, res: Response) => {
-    const reviews = await Review.find();
+    let filter = {};
+
+    if (req.params.tourId) filter = { tour: req.params.tourId };
+
+    const reviews = await Review.find(filter);
 
     res.status(200).json({
       status: 'success',
@@ -15,7 +19,11 @@ class ReviewController {
     });
   });
 
-  createReview = catchAsync(async (req: Request, res: Response) => {
+  createReview = catchAsync(async (req: extndRequest, res: Response) => {
+    // Allow nested routes
+    if (!req.body.tour) req.body.tour = req.params.tourId;
+    if (!req.body.user) req.body.user = req.user!.id;
+
     const newReview = await Review.create(req.body);
 
     res.status(201).json({

@@ -148,6 +148,13 @@ tourSchema.virtual('durationWeeks').get(function (this: ITour) {
   return (this.duration / 7).toFixed(2);
 });
 
+// Virtual populate
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id',
+});
+
 // Middlewares
 
 // DOC MIDDLEWARE: bef .save() and create()
