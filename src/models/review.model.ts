@@ -2,7 +2,7 @@ import { Schema, Document, model, Query } from 'mongoose';
 
 interface IReview extends Document {
   review: string;
-  ratting: number;
+  rating: number;
   createdAt: Date;
 }
 
@@ -12,7 +12,7 @@ const reviewSchema = new Schema(
       type: String,
       require: [true, 'Review can not be empty'],
     },
-    ratting: {
+    rating: {
       type: Number,
       min: 1,
       max: 5,

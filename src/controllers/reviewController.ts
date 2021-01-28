@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { createDoc, deleteDoc, updateDoc } from '../features/handlerFactory';
 import { Review } from '../models/review.model';
 import { catchAsync, extndRequest } from '../utils/catchAsync';
 
@@ -19,20 +20,9 @@ class ReviewController {
     });
   });
 
-  createReview = catchAsync(async (req: extndRequest, res: Response) => {
-    // Allow nested routes
-    if (!req.body.tour) req.body.tour = req.params.tourId;
-    if (!req.body.user) req.body.user = req.user!.id;
-
-    const newReview = await Review.create(req.body);
-
-    res.status(201).json({
-      status: 'success',
-      data: {
-        review: newReview,
-      },
-    });
-  });
+  createReview = createDoc(Review);
+  updateReview = updateDoc(Review);
+  deleteReview = deleteDoc(Review);
 }
 
 export default new ReviewController();

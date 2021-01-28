@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { protectRout } from '../middleware/protectRout';
 import authController from '../controllers/authController';
 import userController from '../controllers/userController';
+import { restrictTo } from '../middleware/restrictTo';
 
 export const userRouter = Router();
 
@@ -20,4 +21,23 @@ userRouter.patch(
 userRouter.patch('/update-me', protectRout, userController.selfUpdate);
 userRouter.delete('/delete-me', protectRout, userController.inactivateAcc);
 
-userRouter.get('/', userController.getAllUsers);
+userRouter.get(
+  '/',
+  protectRout,
+  restrictTo('admin'),
+  userController.getAllUsers
+);
+
+userRouter.patch(
+  '/',
+  protectRout,
+  restrictTo('admin'),
+  userController.updateByAdmin
+);
+
+userRouter.delete(
+  '/',
+  protectRout,
+  restrictTo('admin'),
+  userController.deleteByAdmin
+);

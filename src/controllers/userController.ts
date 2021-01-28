@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../features/error.features';
+import { deleteDoc, updateDoc } from '../features/handlerFactory';
 import { User } from '../models/user.model';
 import { catchAsync, extndRequest } from '../utils/catchAsync';
 
@@ -69,6 +70,10 @@ class UserController {
       });
     }
   );
+
+  // Don't use for changing password, only current user can (/users/update-my-password)
+  updateByAdmin = updateDoc(User);
+  deleteByAdmin = deleteDoc(User);
 }
 
 export default new UserController();

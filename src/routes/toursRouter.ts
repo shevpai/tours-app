@@ -25,9 +25,14 @@ toursRouter.get('/tours-stats', tourController.getTourStats);
 toursRouter.get('/monthly-plan/:year', tourController.getMonthlyPlan);
 
 // Routs
-toursRouter.get('/', protectRout, tourController.getAllTours);
+toursRouter.get('/', tourController.getAllTours);
 toursRouter.get('/:id', tourController.getTour);
-toursRouter.patch('/:id', tourController.updateTour);
+toursRouter.patch(
+  '/:id',
+  protectRout,
+  restrictTo('admin', 'lead-guide'),
+  tourController.updateTour
+);
 toursRouter.delete(
   '/:id',
   protectRout,

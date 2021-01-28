@@ -3,6 +3,7 @@ import { APIFeatures } from '../features/api.features';
 import { AppError } from '../features/error.features';
 import { Tour } from '../models/tour.model';
 import { catchAsync } from '../utils/catchAsync';
+import { createDoc, deleteDoc, updateDoc } from '../features/handlerFactory';
 
 class TourController {
   getAllTours = catchAsync(async (req: Request, res: Response) => {
@@ -40,48 +41,9 @@ class TourController {
     }
   );
 
-  updateTour = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
-        new: true,
-        runValidators: true,
-      });
-
-      if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-      }
-
-      res.status(200).json({
-        status: 'success',
-        data: {
-          tour,
-        },
-      });
-    }
-  );
-
-  deleteTour = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const tour = await Tour.findByIdAndDelete(req.params.id);
-
-      if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-      }
-
-      res.status(204).send();
-    }
-  );
-
-  addTour = catchAsync(async (req: Request, res: Response) => {
-    const newTour = await Tour.create(req.body);
-
-    res.status(201).json({
-      status: 'success',
-      data: {
-        tour: newTour,
-      },
-    });
-  });
+  addTour = createDoc(Tour);
+  updateTour = updateDoc(Tour);
+  deleteTour = deleteDoc(Tour);
 
   getTourStats = catchAsync(async (req: Request, res: Response) => {
     const stats = await Tour.aggregate([
