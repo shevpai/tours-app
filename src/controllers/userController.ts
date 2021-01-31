@@ -1,6 +1,11 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { AppError } from '../features/error.features';
-import { deleteDoc, updateDoc } from '../features/handlerFactory';
+import {
+  deleteDoc,
+  getAllDocs,
+  getDoc,
+  updateDoc,
+} from '../features/handlerFactory';
 import { User } from '../models/user.model';
 import { catchAsync, extndRequest } from '../utils/catchAsync';
 
@@ -15,16 +20,11 @@ const filterObj = (obj: IObj, ...allowedFields: string[]) =>
   }, {});
 
 class UserController {
-  getAllUsers = catchAsync(async (req: Request, res: Response) => {
-    const users = await User.find();
-
-    res.status(200).json({
-      status: 'success',
-      data: {
-        users,
-      },
-    });
-  });
+  getAllUsers = getAllDocs(User);
+  getUser = getDoc(User);
+  // Don't use for changing password, only current user can (/users/update-my-password)
+  updateByAdmin = updateDoc(User);
+  deleteByAdmin = deleteDoc(User);
 
   selfUpdate = catchAsync(
     async (req: extndRequest, res: Response, next: NextFunction) => {
@@ -41,7 +41,8 @@ class UserController {
       // filter body (not allowed user to change secure props)
       const filtredBody = filterObj(req.body, 'name', 'email');
 
-      // use findByIdAndUpdate to avoid passwordConfirm validation
+      // use findByIdAndUpdate to avoid validation for pass and passConf(undefined)
+      // so in this case we use validation only on the fields that we updating
       const updatedUser = await User.findByIdAndUpdate(
         req.user!.id,
         filtredBody,
@@ -70,10 +71,6 @@ class UserController {
       });
     }
   );
-
-  // Don't use for changing password, only current user can (/users/update-my-password)
-  updateByAdmin = updateDoc(User);
-  deleteByAdmin = deleteDoc(User);
 }
 
 export default new UserController();

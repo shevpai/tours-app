@@ -1,7 +1,7 @@
 import { NextFunction, Response } from 'express';
 import { extndRequest } from '../utils/catchAsync';
 
-export function setParamsForNestedReviews(
+export function setBodyForNestedReviews(
   req: extndRequest,
   res: Response,
   next: NextFunction

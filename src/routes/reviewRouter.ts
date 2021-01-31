@@ -2,18 +2,30 @@ import { Router } from 'express';
 import reviewController from '../controllers/reviewController';
 import { protectRout } from '../middleware/protectRout';
 import { restrictTo } from '../middleware/restrictTo';
-import { setParamsForNestedReviews } from '../middleware/setParamsForNestedReviews';
+import { setBodyForNestedReviews } from '../middleware/setBodyForNestedReviews';
 
 export const reviewRouter = Router({ mergeParams: true });
 
 reviewRouter.get('/', reviewController.getAllReviews);
+reviewRouter.get('/:id', reviewController.getReview);
+
+reviewRouter.use(protectRout);
+
 reviewRouter.post(
   '/',
-  protectRout,
   restrictTo('user'),
-  setParamsForNestedReviews,
+  setBodyForNestedReviews,
   reviewController.createReview
 );
 
-reviewRouter.patch('/:id', protectRout, reviewController.updateReview);
-reviewRouter.delete('/:id', protectRout, reviewController.deleteReview);
+reviewRouter.patch(
+  '/:id',
+  restrictTo('user', 'admin'),
+  reviewController.updateReview
+);
+
+reviewRouter.delete(
+  '/:id',
+  restrictTo('user', 'admin'),
+  reviewController.deleteReview
+);

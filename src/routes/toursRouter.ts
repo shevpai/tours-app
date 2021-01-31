@@ -22,11 +22,16 @@ toursRouter.get('/top-5-best-tours', aliasTopTours, tourController.getAllTours);
 
 // Tours stats
 toursRouter.get('/tours-stats', tourController.getTourStats);
-toursRouter.get('/monthly-plan/:year', tourController.getMonthlyPlan);
+toursRouter.get(
+  '/monthly-plan/:year',
+  restrictTo('admin', 'lead-guide', 'guide'),
+  tourController.getMonthlyPlan
+);
 
 // Routs
 toursRouter.get('/', tourController.getAllTours);
 toursRouter.get('/:id', tourController.getTour);
+
 toursRouter.patch(
   '/:id',
   protectRout,
@@ -39,4 +44,9 @@ toursRouter.delete(
   restrictTo('admin', 'lead-guide'),
   tourController.deleteTour
 );
-toursRouter.post('/', tourController.addTour);
+toursRouter.post(
+  '/',
+  protectRout,
+  restrictTo('admin', 'lead-guide'),
+  tourController.addTour
+);

@@ -1,46 +1,17 @@
-import { NextFunction, Request, Response } from 'express';
-import { APIFeatures } from '../features/api.features';
-import { AppError } from '../features/error.features';
+import { Request, Response } from 'express';
 import { Tour } from '../models/tour.model';
 import { catchAsync } from '../utils/catchAsync';
-import { createDoc, deleteDoc, updateDoc } from '../features/handlerFactory';
+import {
+  createDoc,
+  deleteDoc,
+  getAllDocs,
+  getDoc,
+  updateDoc,
+} from '../features/handlerFactory';
 
 class TourController {
-  getAllTours = catchAsync(async (req: Request, res: Response) => {
-    const features = new APIFeatures(Tour.find(), req.query)
-      .filter()
-      .sort()
-      .limitFields()
-      .paginate();
-
-    const tours = await features.getQuery;
-
-    res.status(200).json({
-      status: 'success',
-      results: tours.length,
-      data: {
-        tours,
-      },
-    });
-  });
-
-  getTour = catchAsync(
-    async (req: Request, res: Response, next: NextFunction) => {
-      const tour = await Tour.findById(req.params.id).populate('reviews');
-
-      if (!tour) {
-        return next(new AppError('No tour found with that ID', 404));
-      }
-
-      res.status(200).json({
-        status: 'success',
-        data: {
-          tour,
-        },
-      });
-    }
-  );
-
+  getAllTours = getAllDocs(Tour);
+  getTour = getDoc(Tour, { path: 'reviews' });
   addTour = createDoc(Tour);
   updateTour = updateDoc(Tour);
   deleteTour = deleteDoc(Tour);

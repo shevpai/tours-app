@@ -3,41 +3,32 @@ import { protectRout } from '../middleware/protectRout';
 import authController from '../controllers/authController';
 import userController from '../controllers/userController';
 import { restrictTo } from '../middleware/restrictTo';
+import { addUserIdParam } from '../middleware/addUserIdParam';
 
 export const userRouter = Router();
 
+// sign up & log in
 userRouter.post('/signup', authController.signup);
 userRouter.post('/login', authController.login);
 
+// reset password
 userRouter.post('/forgot-password', authController.forgotPassword);
 userRouter.patch('/reset-password/:token', authController.resetPassword);
 
-userRouter.patch(
-  '/update-my-password',
-  protectRout,
-  authController.updateUserPassword
-);
+// all routes below are protected
+userRouter.use(protectRout);
 
-userRouter.patch('/update-me', protectRout, userController.selfUpdate);
-userRouter.delete('/delete-me', protectRout, userController.inactivateAcc);
+userRouter.patch('/update-my-password', authController.updateUserPassword);
 
-userRouter.get(
-  '/',
-  protectRout,
-  restrictTo('admin'),
-  userController.getAllUsers
-);
+// GET ME endpoint
+userRouter.get('/me', addUserIdParam, userController.getUser);
 
-userRouter.patch(
-  '/',
-  protectRout,
-  restrictTo('admin'),
-  userController.updateByAdmin
-);
+userRouter.patch('/update-me', userController.selfUpdate);
+userRouter.delete('/delete-me', userController.inactivateAcc);
 
-userRouter.delete(
-  '/',
-  protectRout,
-  restrictTo('admin'),
-  userController.deleteByAdmin
-);
+userRouter.use(restrictTo('admin'));
+
+userRouter.get('/', userController.getAllUsers);
+userRouter.get('/:id', userController.getUser);
+userRouter.patch('/', userController.updateByAdmin);
+userRouter.delete('/', userController.deleteByAdmin);
