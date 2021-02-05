@@ -24,6 +24,7 @@ toursRouter.get('/top-5-best-tours', aliasTopTours, tourController.getAllTours);
 toursRouter.get('/tours-stats', tourController.getTourStats);
 toursRouter.get(
   '/monthly-plan/:year',
+  protectRout,
   restrictTo('admin', 'lead-guide', 'guide'),
   tourController.getMonthlyPlan
 );

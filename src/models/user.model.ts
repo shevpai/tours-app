@@ -128,3 +128,6 @@ userSchema.methods.createPasswordResetToken = function (this: IUser) {
 };
 
 export const User = model<IUser>('User', userSchema);
+
+// for load/delete data script outside the module
+// module.exports = User;
