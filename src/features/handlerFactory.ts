@@ -85,6 +85,8 @@ export const getAllDocs = (Model: Model<any>) =>
       .paginate();
 
     const documents = await features.getQuery;
+    // To get query statistic
+    // const documents = await features.getQuery.explain();
 
     res.status(200).json({
       status: 'success',

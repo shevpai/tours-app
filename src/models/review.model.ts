@@ -1,9 +1,17 @@
-import { Schema, Document, model, Query } from 'mongoose';
+import { Schema, Document, model, Query, Model, Types } from 'mongoose';
+import { Tour } from './tour.model';
 
 interface IReview extends Document {
   review: string;
   rating: number;
   createdAt: Date;
+  tour: string;
+  user: string;
+}
+
+// static methods declare in model not in document interface
+interface IReviewModel extends Model<IReview> {
+  calcAverageRatings(tourId: string): Promise<any[]>;
 }
 
 const reviewSchema = new Schema(
@@ -46,7 +54,35 @@ reviewSchema.pre<Query<IReview, IReview, any>>(/^find/, function () {
   });
 });
 
-export const Review = model<IReview>('Review', reviewSchema);
+// Similar to static class methods (Reviews.method)
+reviewSchema.statics.calcAverageRatings = async function (tourId: string) {
+  const stats = await this.aggregate([
+    {
+      $match: { tour: new Types.ObjectId(tourId) },
+    },
+    {
+      $group: {
+        _id: 'tour',
+        numRatings: { $sum: 1 },
+        avgRating: { $avg: '$rating' },
+      },
+    },
+  ]);
+
+  // Update current tour
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0]['numRatings'],
+    ratingsAverage: stats[0]['avgRating'].toFixed(1),
+  });
+
+  return stats;
+};
+
+reviewSchema.post<IReview>('save', function () {
+  model<IReview, IReviewModel>('Review').calcAverageRatings(this.tour);
+});
+
+export const Review = model<IReview, IReviewModel>('Review', reviewSchema);
 
 // for load/delete data script outside the module
 // module.exports = Review;

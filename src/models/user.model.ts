@@ -84,6 +84,7 @@ userSchema.pre<Query<IUser, IUser, any>>(/^find/, function () {
   this.find({ active: { $ne: false } });
 });
 
+// Methods are available on schema instances
 userSchema.methods.correctPass = async function (
   candidatePass: string,
   userPass: string

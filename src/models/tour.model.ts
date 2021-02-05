@@ -143,6 +143,9 @@ const tourSchema: Schema = new Schema(
   }
 );
 
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
+
 // Implementing virtual props
 tourSchema.virtual('durationWeeks').get(function (this: ITour) {
   return (this.duration / 7).toFixed(2);
