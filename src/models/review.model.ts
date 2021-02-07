@@ -46,6 +46,8 @@ const reviewSchema = new Schema(
   }
 );
 
+reviewSchema.index({ tour: 1, user: 1 }, { unique: true });
+
 // populate user & tour data
 reviewSchema.pre<Query<IReview, IReview, any>>(/^find/, function () {
   this.populate({
@@ -73,7 +75,7 @@ reviewSchema.statics.calcAverageRatings = async function (tourId: string) {
   if (stats.length) {
     await Tour.findByIdAndUpdate(tourId, {
       ratingsQuantity: stats[0]['numRatings'],
-      ratingsAverage: stats[0]['avgRating'].toFixed(1),
+      ratingsAverage: stats[0]['avgRating'],
     });
   } else {
     // Back to default values
