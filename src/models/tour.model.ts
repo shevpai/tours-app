@@ -166,9 +166,8 @@ tourSchema.pre<ITour>('save', function (next) {
   next();
 });
 
-// tourSchema.post<ITour>('save', function (doc, next) {
+// tourSchema.post<ITour>('save', function (doc) {
 //   console.log(doc);
-//   next();
 // });
 
 // Embedding guides(users) into Tours (--JUST FOR EXAMPLE)

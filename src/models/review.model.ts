@@ -70,16 +70,35 @@ reviewSchema.statics.calcAverageRatings = async function (tourId: string) {
   ]);
 
   // Update current tour
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0]['numRatings'],
-    ratingsAverage: stats[0]['avgRating'].toFixed(1),
-  });
-
-  return stats;
+  if (stats.length) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0]['numRatings'],
+      ratingsAverage: stats[0]['avgRating'].toFixed(1),
+    });
+  } else {
+    // Back to default values
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5,
+    });
+  }
 };
 
-reviewSchema.post<IReview>('save', function () {
-  model<IReview, IReviewModel>('Review').calcAverageRatings(this.tour);
+reviewSchema.post<IReview>('save', async function () {
+  await model<IReview, IReviewModel>('Review').calcAverageRatings(this.tour);
+});
+
+// reviewSchema.pre<Query<IReview, IReview, any>>(
+//   /^findOneAnd/,
+//   async function () {
+//     // To get access to document in query middleware (execute query)
+//     const r = await this.findOne();
+//   }
+// );
+
+// To update rating on updating review
+reviewSchema.post<IReview>(/^findOneAnd/, async function (doc) {
+  await model<IReview, IReviewModel>('Review').calcAverageRatings(doc.tour);
 });
 
 export const Review = model<IReview, IReviewModel>('Review', reviewSchema);
