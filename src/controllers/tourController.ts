@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import { Tour } from '../models/tour.model';
 import { catchAsync } from '../utils/catchAsync';
 import {
@@ -8,6 +8,7 @@ import {
   getDoc,
   updateDoc,
 } from '../features/handlerFactory';
+import { AppError } from '../features/error.features';
 
 class TourController {
   getAllTours = getAllDocs(Tour);
@@ -15,6 +16,84 @@ class TourController {
   addTour = createDoc(Tour);
   updateTour = updateDoc(Tour);
   deleteTour = deleteDoc(Tour);
+
+  // url='/tours-within/:distance/center/:latlng/unit/:unit'
+  getToursWithin = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { distance, latlng, unit } = req.params;
+      const [lat, lng] = latlng.split(',');
+
+      const radius = unit === 'mi' ? +distance / 3963.2 : +distance / 6378.1;
+
+      if (!lat || !lng) {
+        return next(
+          new AppError(
+            'Please provide latitude and longtitude in the format "lat,lng"',
+            400
+          )
+        );
+      }
+
+      const tours = await Tour.find({
+        startLocation: {
+          $geoWithin: {
+            $centerSphere: [[lng, lat], radius],
+          },
+        },
+      });
+
+      res.status(200).json({
+        status: 'success',
+        results: tours.length,
+        data: {
+          tours,
+        },
+      });
+    }
+  );
+
+  // url='/distances/:latlng/unit/:unit'
+  getToursDistances = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const { latlng, unit } = req.params;
+      const [lat, lng] = latlng.split(',');
+
+      const multiplier = unit === 'mi' ? 0.000621371 : 0.001;
+
+      if (!lat || !lng) {
+        return next(
+          new AppError(
+            'Please provide latitude and longtitude in the format "lat,lng"',
+            400
+          )
+        );
+      }
+
+      const distances = await Tour.aggregate([
+        {
+          $geoNear: {
+            near: { type: 'Point', coordinates: [+lng, +lat] },
+            distanceField: 'distance',
+            // convert in kilometers
+            distanceMultiplier: multiplier,
+          },
+        },
+        {
+          $project: {
+            distance: 1,
+            name: 1,
+          },
+        },
+      ]);
+
+      res.status(200).json({
+        status: 'success',
+        data: {
+          distances,
+        },
+      });
+    }
+  );
 
   getTourStats = catchAsync(async (req: Request, res: Response) => {
     const stats = await Tour.aggregate([

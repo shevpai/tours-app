@@ -147,6 +147,7 @@ const tourSchema: Schema = new Schema(
 
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 // Implementing virtual props
 tourSchema.virtual('durationWeeks').get(function (this: ITour) {
@@ -195,9 +196,9 @@ tourSchema.pre<Query<ITour, ITour, any>>(/^find/, function () {
 });
 
 // AGGREGATION MIDDLEWARE
-tourSchema.pre<Aggregate<ITour>>('aggregate', function () {
-  this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
-});
+// tourSchema.pre<Aggregate<ITour>>('aggregate', function () {
+//   this.pipeline().unshift({ $match: { secretTour: { $ne: true } } });
+// });
 
 export const Tour = model<ITour>('Tour', tourSchema);
 

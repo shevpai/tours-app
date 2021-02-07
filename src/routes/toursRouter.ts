@@ -29,6 +29,18 @@ toursRouter.get(
   tourController.getMonthlyPlan
 );
 
+// Get all tours in defined area
+toursRouter.get(
+  '/tours-within/:distance/center/:latlng/unit/:unit',
+  tourController.getToursWithin
+);
+
+// Get distance to each tour from defined coordinates
+toursRouter.get(
+  '/distances/:latlng/unit/:unit',
+  tourController.getToursDistances
+);
+
 // Routs
 toursRouter.get('/', tourController.getAllTours);
 toursRouter.get('/:id', tourController.getTour);
