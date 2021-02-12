@@ -15,6 +15,8 @@ export const protectRout = catchAsync(
     const token =
       authHeader && authHeader.startsWith('Bearer')
         ? authHeader.split(' ')[1]
+        : req.cookies.jwt
+        ? req.cookies.jwt
         : null;
 
     if (!token) {

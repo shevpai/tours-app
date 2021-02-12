@@ -5,6 +5,7 @@ dotenv.config({ path: path.join(__dirname, '..', 'config.env') });
 
 const express = require('express');
 const morgan = require('morgan');
+const cookieParser = require('cookie-parser')
 const mongoose = require('mongoose');
 const rateLimiter = require('express-rate-limit');
 const helmet = require('helmet');
@@ -50,6 +51,7 @@ app.use('/api', limiter);
 
 // instead of using bodyParser
 app.use(express.json({ limit: '10kb' }));
+app.use(cookieParser())
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());

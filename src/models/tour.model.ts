@@ -1,4 +1,4 @@
-import { Schema, Document, model, Query, Aggregate } from 'mongoose';
+import { Schema, Document, model, Query } from 'mongoose';
 import { IUser } from './user.model';
 
 const slugify = require('slugify');
