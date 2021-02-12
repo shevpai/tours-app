@@ -1,16 +1,19 @@
 // Just a sample of middleware that check if user logged in
 // And if it's true sends current user data back, by putting it in res.locals
 
-import { NextFunction, Response } from 'express';
+import { NextFunction, Response, Request } from 'express';
 import { promisify } from 'util';
 import { User } from '../models/user.model';
-import { catchAsync, extndRequest } from '../utils/catchAsync';
 
 const jwt = require('jsonwebtoken');
 
-export const isLoggedIn = catchAsync(
-  async (req: extndRequest, res: Response, next: NextFunction) => {
-    if (req.cookies.jwt) {
+export const isLoggedIn = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  if (req.cookies.jwt) {
+    try {
       // Verify token from cookies
       const decoded = await promisify(jwt.verify)(
         req.cookies.jwt,
@@ -33,7 +36,11 @@ export const isLoggedIn = catchAsync(
       // We put that user in locals and later have access to user data in veiw tamplates
       res.locals.user = user;
       return next();
+    } catch (e) {
+      // try/catch instead of catchAsync, because we need this kind of scenario
+      // when there is no logged in user(to render right view template)
+      return next();
     }
-    next();
   }
-);
+  next();
+};

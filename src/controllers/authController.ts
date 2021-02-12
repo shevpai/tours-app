@@ -74,6 +74,15 @@ class AuthController {
     }
   );
 
+  logout = catchAsync(async (req: Request, res: Response) => {
+    res.cookie('jwt', 'loggedout', {
+      httpOnly: true,
+      expires: new Date(Date.now() + 10 * 1000),
+    });
+
+    res.status(200).json({ status: 'success' });
+  });
+
   updateUserPassword = catchAsync(
     async (req: extndRequest, res: Response, next: NextFunction) => {
       const user = await User.findById(req.user!.id).select('+password');
