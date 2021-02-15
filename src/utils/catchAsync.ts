@@ -13,7 +13,11 @@ type IFn = (
 ) => Promise<void | ResponseError>;
 
 export const catchAsync = (fn: IFn) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
+  return async (
+    req: Request | extndRequest,
+    res: Response,
+    next: NextFunction
+  ) => {
     fn(req, res, next).catch(next);
   };
 };

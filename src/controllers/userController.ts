@@ -41,6 +41,9 @@ class UserController {
       // filter body (not allowed user to change secure props)
       const filtredBody = filterObj(req.body, 'name', 'email');
 
+      // if we upload user photo
+      if (req.file) filtredBody.photo = req.file.filename;
+
       // use findByIdAndUpdate to avoid validation for pass and passConf(undefined)
       // so in this case we use validation only on the fields that we updating
       const updatedUser = await User.findByIdAndUpdate(
