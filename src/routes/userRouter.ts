@@ -5,6 +5,7 @@ import userController from '../controllers/userController';
 import { restrictTo } from '../middleware/restrictTo';
 import { addUserIdParam } from '../middleware/addUserIdParam';
 import { uploadUserPhoto } from '../middleware/uploadUserPhoto';
+import { resizeUserPhoto } from '../middleware/resizeUserPhoto';
 
 export const userRouter = Router();
 
@@ -25,7 +26,12 @@ userRouter.patch('/update-my-password', authController.updateUserPassword);
 // GET ME endpoint
 userRouter.get('/me', addUserIdParam, userController.getUser);
 
-userRouter.patch('/update-me', uploadUserPhoto, userController.selfUpdate);
+userRouter.patch(
+  '/update-me',
+  uploadUserPhoto,
+  resizeUserPhoto,
+  userController.selfUpdate
+);
 userRouter.delete('/delete-me', userController.inactivateAcc);
 
 userRouter.use(restrictTo('admin'));

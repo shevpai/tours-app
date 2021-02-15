@@ -4,19 +4,21 @@ import { extndRequest } from '../utils/catchAsync';
 type MulterCb = (error: Error | null, destination: string | boolean) => void;
 
 // For uploading files
-const path = require('path');
 const multer = require('multer');
 
-// Storage settings
-const multerStorage = multer.diskStorage({
-  destination: (req: extndRequest, file: Express.Multer.File, cb: MulterCb) => {
-    cb(null, path.join(__dirname, '..', '..', 'public', 'img', 'users'));
-  },
-  filename: (req: extndRequest, file: Express.Multer.File, cb: MulterCb) => {
-    const ext = file.mimetype.split('/')[1];
-    cb(null, `user-${req.user!.id}-${Date.now()}.${ext}`);
-  },
-});
+// Disk storage settings
+// const multerStorage = multer.diskStorage({
+//   destination: (req: extndRequest, file: Express.Multer.File, cb: MulterCb) => {
+//     cb(null, path.join(__dirname, '..', '..', 'public', 'img', 'users'));
+//   },
+//   filename: (req: extndRequest, file: Express.Multer.File, cb: MulterCb) => {
+//     const ext = file.mimetype.split('/')[1];
+//     cb(null, `user-${req.user!.id}-${Date.now()}.${ext}`);
+//   },
+// });
+
+// To store file in memory (for next -> resize mw)
+const multerStorage = multer.memoryStorage();
 
 // Filter by file type
 const multerFilter = (
