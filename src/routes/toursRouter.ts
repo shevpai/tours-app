@@ -4,6 +4,8 @@ import { protectRout } from '../middleware/protectRout';
 import { restrictTo } from '../middleware/restrictTo';
 import { reviewRouter } from './reviewRouter';
 import tourController from '../controllers/tourController';
+import { uploadTourPhotos } from '../middleware/uploadTourPhotos';
+import { resizeTourPhotos } from '../middleware/resizeTourPhotos';
 
 export const toursRouter = Router();
 
@@ -49,6 +51,8 @@ toursRouter.patch(
   '/:id',
   protectRout,
   restrictTo('admin', 'lead-guide'),
+  uploadTourPhotos,
+  resizeTourPhotos,
   tourController.updateTour
 );
 toursRouter.delete(
