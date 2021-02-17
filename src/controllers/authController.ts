@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from 'express';
 import { AppError } from '../features/error.features';
 import { IUser, User } from '../models/user.model';
 import { catchAsync, extndRequest } from '../utils/catchAsync';
-import { sendEmail } from '../utils/email';
+import { Email } from '../utils/email';
 
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
@@ -25,18 +25,14 @@ const createAndSendToken = (user: IUser, statusCode: number, res: Response) => {
 
   res.cookie('jwt', token, cookieOptions);
 
-  const userData = {
-    name: user.name,
-    email: user.email,
-    role: user.role,
-    id: user._id,
-  };
+  // Remove password from output
+  user.password = undefined;
 
   res.status(statusCode).json({
     status: 'success',
     token,
     data: {
-      user: userData,
+      user,
     },
   });
 };
@@ -52,6 +48,10 @@ class AuthController {
       role: req.body.role,
     });
     await user.save();
+
+    // Sending welcome Email
+    const url = `${req.protocol}://${req.get('host')}/me`;
+    await new Email(user, url).sendWelcome();
 
     createAndSendToken(user, 201, res);
   });
@@ -123,11 +123,12 @@ class AuthController {
       const message = `Forgot you password? Submit a PATCH request with your new password and passwordConfirmed to: ${resetURL}\nIf you didn't forget your password, please ignore this email!`;
 
       try {
-        await sendEmail({
-          email: user.email,
-          subject: 'Your password reset token (valid for 10 min)',
-          text: message,
-        });
+        // TODO: Fix mail sending
+        // await sendEmail({
+        //   email: user.email,
+        //   subject: 'Your password reset token (valid for 10 min)',
+        //   text: message,
+        // });
 
         res.status(200).json({
           status: 'success',

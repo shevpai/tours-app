@@ -9,7 +9,7 @@ export interface IUser extends Document {
   email: string;
   photo: string;
   role: 'user' | 'guide' | 'lead-guide' | 'admin';
-  password: string;
+  password: string | undefined;
   passwordConfirm: string | undefined;
   passwordChangedAt: Date;
   passwordResetToken: string;

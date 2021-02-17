@@ -5,7 +5,7 @@ dotenv.config({ path: path.join(__dirname, '..', 'config.env') });
 
 const express = require('express');
 const morgan = require('morgan');
-const cookieParser = require('cookie-parser')
+const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const rateLimiter = require('express-rate-limit');
 const helmet = require('helmet');
@@ -32,6 +32,10 @@ const DB = process.env.DB_URI!.replace('<PASSWORD>', process.env.DB_PASSWORD!);
 const app: Application = express();
 const PORT = process.env.PORT || 8000;
 
+// SET Tamplate render engine
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
 // logging middleware
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
@@ -51,7 +55,7 @@ app.use('/api', limiter);
 
 // instead of using bodyParser
 app.use(express.json({ limit: '10kb' }));
-app.use(cookieParser())
+app.use(cookieParser());
 
 // Data sanitization against NoSQL query injection
 app.use(mongoSanitize());
