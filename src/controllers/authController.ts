@@ -115,20 +115,13 @@ class AuthController {
       const resetToken = user.createPasswordResetToken();
       await user.save({ validateBeforeSave: false });
 
-      // Send token to user's email
-      const resetURL = `${req.protocol}://${req.get(
-        'host'
-      )}/api/v1/users/reset-password/${resetToken}`;
-
-      const message = `Forgot you password? Submit a PATCH request with your new password and passwordConfirmed to: ${resetURL}\nIf you didn't forget your password, please ignore this email!`;
-
       try {
-        // TODO: Fix mail sending
-        // await sendEmail({
-        //   email: user.email,
-        //   subject: 'Your password reset token (valid for 10 min)',
-        //   text: message,
-        // });
+        // Sending token to user's email
+        const resetURL = `${req.protocol}://${req.get(
+          'host'
+        )}/api/v1/users/reset-password/${resetToken}`;
+
+        await new Email(user, resetURL).sendPasswordReset();
 
         res.status(200).json({
           status: 'success',

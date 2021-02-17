@@ -18,7 +18,7 @@ export class Email {
     this.from = `Alexander Shevtsov <${process.env.EMAIL_FROM}>`;
   }
 
-  createNewTransport() {
+  private createNewTransport() {
     // Here must be real mailer instead of mailtrap
     if (process.env.NODE_ENV === 'production') return 1;
 
@@ -32,7 +32,7 @@ export class Email {
     });
   }
 
-  async send(template: Templates, subject: string) {
+  private async send(template: Templates, subject: string) {
     // Render HTML based on a pug template
     const html = pug.renderFile(
       path.join(__dirname, '..', 'views', 'email', `${template}.pug`),
@@ -57,6 +57,13 @@ export class Email {
 
   async sendWelcome() {
     await this.send('welcome', 'Welcome to the Natours Family!');
+  }
+
+  async sendPasswordReset() {
+    await this.send(
+      'password-reset',
+      'Your password reset token (valid for 10 minutes)'
+    );
   }
 }
 
