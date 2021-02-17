@@ -166,8 +166,6 @@ class AuthController {
 
       await user.save();
 
-      // Update user.changedPasswordAt
-
       // Automatically log in user (send JWT)
       createAndSendToken(user, 200, res);
     }
